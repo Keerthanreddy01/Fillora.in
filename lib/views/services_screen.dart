@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});
@@ -67,9 +67,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'All Services',
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -90,16 +90,27 @@ class _ServicesScreenState extends State<ServicesScreen> {
             colors: [Color(0xFF0A0A0A), Color(0xFF1A1A1A)],
           ),
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(20),
-          itemCount: _categories.length,
-          itemBuilder: (context, index) {
-            return FadeInUp(
-              duration: const Duration(milliseconds: 600),
-              delay: Duration(milliseconds: index * 200),
-              child: _buildCategorySection(_categories[index]),
-            );
-          },
+        child: SafeArea(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: _categories.length,
+            itemBuilder: (context, index) {
+              return TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: Duration(milliseconds: 600 + (index * 200)),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 50 * (1 - value)),
+                    child: Opacity(
+                      opacity: value,
+                      child: _buildCategorySection(_categories[index]),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -146,7 +157,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 Expanded(
                   child: Text(
                     category.title,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -161,7 +172,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   ),
                   child: Text(
                     '${category.services.length}',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       color: category.color,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -172,19 +183,27 @@ class _ServicesScreenState extends State<ServicesScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Services Grid
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.1,
-            ),
-            itemCount: category.services.length,
-            itemBuilder: (context, index) {
-              return _buildServiceCard(category.services[index], category.color);
+          // Services Grid with proper constraints
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
+              final crossAxisCount = screenWidth > 600 ? 3 : 2;
+              final childAspectRatio = screenWidth > 600 ? 1.2 : 1.0;
+              
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: childAspectRatio,
+                ),
+                itemCount: category.services.length,
+                itemBuilder: (context, index) {
+                  return _buildServiceCard(category.services[index], category.color);
+                },
+              );
             },
           ),
         ],
@@ -198,7 +217,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         _showServiceDetails(service, categoryColor);
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           color: Colors.white.withOpacity(0.05),
@@ -209,6 +228,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 40,
@@ -223,24 +243,30 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 size: 22,
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              service.name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            const SizedBox(height: 8),
+            Flexible(
+              child: Text(
+                service.name,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              service.description,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.white.withOpacity(0.7),
+            Flexible(
+              child: Text(
+                service.description,
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
             const Spacer(),
             Row(
@@ -253,7 +279,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   ),
                   child: Text(
                     'Pro',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       color: categoryColor,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -278,6 +304,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) => Container(
         decoration: const BoxDecoration(
           color: Color(0xFF1A1A1A),
@@ -287,82 +314,84 @@ class _ServicesScreenState extends State<ServicesScreen> {
           ),
         ),
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                service.icon,
-                color: color,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              service.name,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              service.description,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white.withOpacity(0.7),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              width: double.infinity,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color, color.withOpacity(0.8)],
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                borderRadius: BorderRadius.circular(12),
               ),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // TODO: Navigate to specific service screen
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 20),
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  service.icon,
+                  color: color,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                service.name,
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                service.description,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [color, color.withOpacity(0.8)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // TODO: Navigate to specific service screen
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Use Service',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Use Service',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

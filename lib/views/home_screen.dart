@@ -11,7 +11,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-  int _selectedNavIndex = 0;
 
   @override
   void initState() {
@@ -68,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -769,93 +767,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ),
                 ),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      height: 70,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1916),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.home_outlined, Icons.home_rounded, 'Home', 0),
-          _buildNavItem(Icons.upload_file_outlined, Icons.upload_file_rounded, 'Upload', 1),
-          _buildNavItem(Icons.psychology_outlined, Icons.psychology_rounded, 'AI', 2),
-          _buildNavItem(Icons.settings_outlined, Icons.settings_rounded, 'Settings', 3),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData outlineIcon, IconData filledIcon, String label, int index) {
-    final isActive = _selectedNavIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedNavIndex = index;
-        });
-        
-        // Navigate based on the selected tab
-        switch (index) {
-          case 0:
-            // Stay on Home
-            break;
-          case 1:
-            // Navigate to Upload
-            Navigator.pushNamed(context, '/upload');
-            break;
-          case 2:
-            // Navigate to AI Assistant
-            Navigator.pushNamed(context, '/ai-assistant');
-            break;
-          case 3:
-            // Navigate to Settings
-            Navigator.pushNamed(context, '/settings');
-            break;
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFFFF8A00) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isActive ? filledIcon : outlineIcon,
-              color: isActive ? const Color(0xFF0D0C0A) : Colors.white.withOpacity(0.5),
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: isActive ? const Color(0xFF0D0C0A) : Colors.white.withOpacity(0.5),
-              ),
             ),
           ],
         ),

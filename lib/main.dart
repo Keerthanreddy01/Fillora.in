@@ -32,15 +32,60 @@ class FilloraApp extends StatelessWidget {
       title: 'Fillora.in - AI Form Assistant',
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
-      routes: {
-        '/': (context) => const HeroIntroScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/profile': (context) => const ProfileScreen(),
-        '/document-scanner': (context) => const DocumentScannerScreen(),
-        '/ai-assistant': (context) => const AIAssistantScreen(),
-        '/upload': (context) => const DocumentUploadScreen(),
-        '/progress': (context) => const ServicesScreen(),
-        '/settings': (context) => const ServicesScreen(),
+      onGenerateRoute: (settings) {
+        Widget page;
+        switch (settings.name) {
+          case '/':
+            page = const HeroIntroScreen();
+            break;
+          case '/home':
+            page = const MainNavigationScreen();
+            break;
+          case '/profile':
+            page = const ProfileScreen();
+            break;
+          case '/document-scanner':
+            page = const DocumentScannerScreen();
+            break;
+          case '/ai-assistant':
+            page = const AIAssistantScreen();
+            break;
+          case '/upload':
+            page = const DocumentUploadScreen();
+            break;
+          case '/progress':
+            page = const ServicesScreen();
+            break;
+          case '/settings':
+            page = const ServicesScreen();
+            break;
+          default:
+            page = const HeroIntroScreen();
+        }
+
+        return PageRouteBuilder(
+          settings: settings,
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionDuration: const Duration(milliseconds: 400),
+          reverseTransitionDuration: const Duration(milliseconds: 300),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOutCubic;
+
+            var tween = Tween(begin: begin, end: end).chain(
+              CurveTween(curve: curve),
+            );
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+            );
+          },
+        );
       },
       theme: ThemeData(
         useMaterial3: true,
@@ -107,6 +152,148 @@ class FilloraApp extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 8,
           shape: CircleBorder(),
+        ),
+      ),
+    );
+  }
+}
+
+// Main Navigation Screen with proper tab management
+class MainNavigationScreen extends StatefulWidget {
+  final int initialIndex;
+  
+  const MainNavigationScreen({super.key, this.initialIndex = 0});
+
+  @override
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+}
+
+class _MainNavigationScreenState extends State<MainNavigationScreen> with TickerProviderStateMixin {
+  late PageController _pageController;
+  late int _selectedIndex;
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: _selectedIndex);
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const DocumentUploadScreen(),
+    const AIAssistantScreen(),
+    const ServicesScreen(),
+  ];
+
+  void _onNavTap(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOutCubic,
+    );
+    _animationController.forward().then((_) {
+      _animationController.reverse();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0D0C0A),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        children: _screens,
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      height: 70,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1916),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(Icons.home_outlined, Icons.home_rounded, 'Home', 0),
+          _buildNavItem(Icons.upload_file_outlined, Icons.upload_file_rounded, 'Upload', 1),
+          _buildNavItem(Icons.psychology_outlined, Icons.psychology_rounded, 'AI', 2),
+          _buildNavItem(Icons.settings_outlined, Icons.settings_rounded, 'Settings', 3),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData outlineIcon, IconData filledIcon, String label, int index) {
+    final isActive = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () => _onNavTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFFFF8A00) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                isActive ? filledIcon : outlineIcon,
+                key: ValueKey(isActive),
+                color: isActive ? const Color(0xFF0D0C0A) : Colors.white.withOpacity(0.5),
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 4),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: GoogleFonts.poppins(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: isActive ? const Color(0xFF0D0C0A) : Colors.white.withOpacity(0.5),
+              ),
+              child: Text(label),
+            ),
+          ],
         ),
       ),
     );

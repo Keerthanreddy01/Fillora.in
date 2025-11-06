@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'onboarding_flow.dart';
+import '../main.dart';
 
 class HeroIntroScreen extends StatelessWidget {
   const HeroIntroScreen({Key? key}) : super(key: key);
@@ -137,9 +137,28 @@ class HeroIntroScreen extends StatelessWidget {
                               child: WarmButton(
                                 text: 'Get Started',
                                 onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const OnboardingFlow(),
+                                  Navigator.of(context).pushReplacement(
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation, secondaryAnimation) =>
+                                          const MainNavigationScreen(),
+                                      transitionDuration: const Duration(milliseconds: 800),
+                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                        const begin = Offset(0.0, 1.0);
+                                        const end = Offset.zero;
+                                        const curve = Curves.easeInOutCubic;
+
+                                        var tween = Tween(begin: begin, end: end).chain(
+                                          CurveTween(curve: curve),
+                                        );
+
+                                        return SlideTransition(
+                                          position: animation.drive(tween),
+                                          child: FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          ),
+                                        );
+                                      },
                                     ),
                                   );
                                 },
