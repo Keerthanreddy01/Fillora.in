@@ -267,6 +267,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ),
                 ),
               ),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/settings');
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.settings_outlined,
+                    color: Colors.white.withOpacity(0.7),
+                    size: 20,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 32),

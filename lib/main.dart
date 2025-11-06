@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'providers/language_provider.dart';
 import 'views/hero_intro_screen.dart';
 import 'views/home_screen.dart';
 import 'views/profile_screen.dart';
@@ -8,8 +10,9 @@ import 'views/document_scanner_screen.dart';
 import 'views/ai_assistant_screen.dart';
 import 'views/document_upload_screen.dart';
 import 'views/services_screen.dart';
+import 'views/settings_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Set system UI overlay style
@@ -20,7 +23,12 @@ void main() {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
   
-  runApp(const FilloraApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => LanguageProvider(),
+      child: const FilloraApp(),
+    ),
+  );
 }
 
 class FilloraApp extends StatelessWidget {
@@ -28,133 +36,262 @@ class FilloraApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Fillora.in - AI Form Assistant',
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      onGenerateRoute: (settings) {
-        Widget page;
-        switch (settings.name) {
-          case '/':
-            page = const HeroIntroScreen();
-            break;
-          case '/home':
-            page = const MainNavigationScreen();
-            break;
-          case '/profile':
-            page = const ProfileScreen();
-            break;
-          case '/document-scanner':
-            page = const DocumentScannerScreen();
-            break;
-          case '/ai-assistant':
-            page = const AIAssistantScreen();
-            break;
-          case '/upload':
-            page = const DocumentUploadScreen();
-            break;
-          case '/progress':
-            page = const ServicesScreen();
-            break;
-          case '/settings':
-            page = const ServicesScreen();
-            break;
-          default:
-            page = const HeroIntroScreen();
-        }
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        return MaterialApp(
+          title: 'Fillora.in - AI Form Assistant',
+          debugShowCheckedModeBanner: false,
+          
+          // Localization support
+          locale: languageProvider.currentLocale,
+          supportedLocales: const [
+            Locale('en', 'US'), // English
+            Locale('hi', 'IN'), // Hindi
+            Locale('te', 'IN'), // Telugu
+            Locale('fr', 'FR'), // French
+            Locale('es', 'ES'), // Spanish
+            Locale('de', 'DE'), // German
+            Locale('pt', 'PT'), // Portuguese
+            Locale('ar', 'SA'), // Arabic
+            Locale('zh', 'CN'), // Chinese
+            Locale('ja', 'JP'), // Japanese
+          ],
+          
+          initialRoute: '/',
+          onGenerateRoute: (settings) {
+            Widget page;
+            switch (settings.name) {
+              case '/':
+                page = const HeroIntroScreen();
+                break;
+              case '/home':
+                page = const MainNavigationScreen();
+                break;
+              case '/profile':
+                page = const ProfileScreen();
+                break;
+              case '/document-scanner':
+                page = const DocumentScannerScreen();
+                break;
+              case '/ai-assistant':
+                page = const AIAssistantScreen();
+                break;
+              case '/upload':
+                page = const DocumentUploadScreen();
+                break;
+              case '/progress':
+                page = const ServicesScreen();
+                break;
+              case '/settings':
+                page = const SettingsScreen();
+                break;
+              default:
+                page = const HeroIntroScreen();
+            }
 
-        return PageRouteBuilder(
-          settings: settings,
-          pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionDuration: const Duration(milliseconds: 400),
-          reverseTransitionDuration: const Duration(milliseconds: 300),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.easeInOutCubic;
+            return PageRouteBuilder(
+              settings: settings,
+              pageBuilder: (context, animation, secondaryAnimation) => page,
+              transitionDuration: const Duration(milliseconds: 400),
+              reverseTransitionDuration: const Duration(milliseconds: 300),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOutCubic;
 
-            var tween = Tween(begin: begin, end: end).chain(
-              CurveTween(curve: curve),
-            );
+                var tween = Tween(begin: begin, end: end).chain(
+                  CurveTween(curve: curve),
+                );
 
-            return SlideTransition(
-              position: animation.drive(tween),
-              child: FadeTransition(
-                opacity: animation,
-                child: child,
-              ),
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
             );
           },
+          theme: _buildTheme(languageProvider),
         );
       },
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        
-        // Color Scheme - Dark navy and black with electric blue
-        colorScheme: const ColorScheme.dark(
-          background: Color(0xFF0F1419),
-          surface: Color(0xFF1A1D29),
-          primary: Color(0xFF4B73FF), // Electric Blue
-          secondary: Color(0xFF2A2D3A),
-          tertiary: Color(0xFF363A47),
-          onBackground: Colors.white,
-          onSurface: Colors.white,
-          onPrimary: Colors.white,
-          error: Color(0xFFFF4757),
-        ),
-        
-        // Scaffold Theme
-        scaffoldBackgroundColor: const Color(0xFF0F1419),
-        
-        // App Bar Theme
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: false,
-          iconTheme: const IconThemeData(color: Colors.white),
-          titleTextStyle: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 26,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        
-        // Text Theme with Poppins
-        textTheme: GoogleFonts.poppinsTextTheme(
-          const TextTheme(
-            displayLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 32),
-            displayMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 28),
-            displaySmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 26),
-            headlineLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 26),
-            headlineMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 24),
-            headlineSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 22),
-            titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20),
-            titleMedium: TextStyle(color: Color(0xFFA8AEC5), fontWeight: FontWeight.w500, fontSize: 16),
-            titleSmall: TextStyle(color: Color(0xFFA8AEC5), fontWeight: FontWeight.w500, fontSize: 14),
-            bodyLarge: TextStyle(color: Color(0xFFBFC3D9), fontWeight: FontWeight.normal, fontSize: 16),
-            bodyMedium: TextStyle(color: Color(0xFFBFC3D9), fontWeight: FontWeight.normal, fontSize: 14),
-            bodySmall: TextStyle(color: Color(0xFFA8AEC5), fontWeight: FontWeight.normal, fontSize: 12),
-            labelLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
-            labelMedium: TextStyle(color: Color(0xFFBFC3D9), fontWeight: FontWeight.w500, fontSize: 12),
-            labelSmall: TextStyle(color: Color(0xFFA8AEC5), fontWeight: FontWeight.w500, fontSize: 11),
-          ),
-        ),
-        
-        // Icon Theme
-        iconTheme: const IconThemeData(
+    );
+  }
+  
+  ThemeData _buildTheme(LanguageProvider languageProvider) {
+    // Get the appropriate font family for the current language
+    final fontFamily = languageProvider.getFontFamily();
+    final textScaleFactor = languageProvider.getTextScaleFactor();
+    
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      
+      // Color Scheme - Dark navy and black with electric blue
+      colorScheme: const ColorScheme.dark(
+        background: Color(0xFF0F1419),
+        surface: Color(0xFF1A1D29),
+        primary: Color(0xFF4B73FF), // Electric Blue
+        secondary: Color(0xFF2A2D3A),
+        tertiary: Color(0xFF363A47),
+        onBackground: Colors.white,
+        onSurface: Colors.white,
+        onPrimary: Colors.white,
+        error: Color(0xFFFF4757),
+      ),
+      
+      // Scaffold Theme
+      scaffoldBackgroundColor: const Color(0xFF0F1419),
+      
+      // App Bar Theme with language-aware font
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: _getTextStyle(
+          fontFamily: fontFamily,
+          fontSize: 26 * textScaleFactor,
+          fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
-        
-        // Floating Action Button Theme
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFF4B73FF),
-          foregroundColor: Colors.white,
-          elevation: 8,
-          shape: CircleBorder(),
-        ),
+      ),
+      
+      // Text Theme with language-aware fonts
+      textTheme: _buildTextTheme(fontFamily, textScaleFactor),
+      
+      // Icon Theme
+      iconTheme: const IconThemeData(
+        color: Colors.white,
+      ),
+      
+      // Floating Action Button Theme
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFF4B73FF),
+        foregroundColor: Colors.white,
+        elevation: 8,
+        shape: CircleBorder(),
       ),
     );
+  }
+  
+  TextTheme _buildTextTheme(String fontFamily, double textScaleFactor) {
+    return TextTheme(
+      displayLarge: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 32 * textScaleFactor,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      displayMedium: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 28 * textScaleFactor,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      displaySmall: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 26 * textScaleFactor,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      headlineLarge: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 26 * textScaleFactor,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      headlineMedium: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 24 * textScaleFactor,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      headlineSmall: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 22 * textScaleFactor,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      titleLarge: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 20 * textScaleFactor,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      titleMedium: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 16 * textScaleFactor,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFFA8AEC5),
+      ),
+      titleSmall: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 14 * textScaleFactor,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFFA8AEC5),
+      ),
+      bodyLarge: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 16 * textScaleFactor,
+        fontWeight: FontWeight.normal,
+        color: const Color(0xFFBFC3D9),
+      ),
+      bodyMedium: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 14 * textScaleFactor,
+        fontWeight: FontWeight.normal,
+        color: const Color(0xFFBFC3D9),
+      ),
+      bodySmall: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 12 * textScaleFactor,
+        fontWeight: FontWeight.normal,
+        color: const Color(0xFFA8AEC5),
+      ),
+      labelLarge: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 14 * textScaleFactor,
+        fontWeight: FontWeight.w500,
+        color: Colors.white,
+      ),
+      labelMedium: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 12 * textScaleFactor,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFFBFC3D9),
+      ),
+      labelSmall: _getTextStyle(
+        fontFamily: fontFamily,
+        fontSize: 11 * textScaleFactor,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFFA8AEC5),
+      ),
+    );
+  }
+  
+  TextStyle _getTextStyle({
+    required String fontFamily,
+    required double fontSize,
+    required FontWeight fontWeight,
+    required Color color,
+  }) {
+    // Use Google Fonts for English and fallback fonts for other languages
+    if (fontFamily == 'Inter') {
+      return GoogleFonts.poppins(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      );
+    } else {
+      return TextStyle(
+        fontFamily: fontFamily,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      );
+    }
   }
 }
 
@@ -195,7 +332,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Ticker
     const HomeScreen(),
     const DocumentUploadScreen(),
     const AIAssistantScreen(),
-    const ServicesScreen(),
+    const SettingsScreen(),
   ];
 
   void _onNavTap(int index) {

@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'dart:async';
-import 'onboarding_screen.dart';
+import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -99,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (mounted) {
         Navigator.pushReplacement(
           context, 
-          MaterialPageRoute(builder: (_) => const OnboardingPageView())
+          MaterialPageRoute(builder: (_) => const HomeScreen())
         );
       }
     });

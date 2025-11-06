@@ -134,3 +134,13 @@ functions-debug.log
 .secrets/
 secrets/
 credentials/
+
+# Additional Security Files
+*.key
+*.pem
+*.p12
+*.keystore
+*.jks
+config.dart
+secrets.dart
+api_keys.dart
