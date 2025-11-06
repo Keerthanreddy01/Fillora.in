@@ -64,8 +64,8 @@ An AI-powered Flutter application that helps users fill long and complex online 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/fillora-app.git
-   cd fillora-app
+   git clone https://github.com/Keerthanreddy01/Fillora.in.git
+   cd Fillora.in
    ```
 
 2. **Install dependencies**
@@ -233,8 +233,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For support and queries:
-- Email: support@fillora.in
-- GitHub Issues: [Create an issue](https://github.com/yourusername/fillora-app/issues)
+- GitHub: [@Keerthanreddy01](https://github.com/Keerthanreddy01)
+- GitHub Issues: [Create an issue](https://github.com/Keerthanreddy01/Fillora.in/issues)
 
 ## 🙏 Acknowledgments
 
